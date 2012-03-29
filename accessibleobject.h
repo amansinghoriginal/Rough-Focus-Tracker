@@ -8,10 +8,10 @@ public:
 	AccessibleObject(const QString& service, const QString& path);
 
 private:
-	QString service;
-	QString path;
-	QDBusConnection conn;
+	QString objService;
+	QString objPath;
+	QDBusConnection objConn;
 
-	QString name;
+	QString objName;
 };
 #endif

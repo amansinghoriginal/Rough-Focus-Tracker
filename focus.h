@@ -4,7 +4,9 @@
 #include <QObject>
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusObjectPath>
+#include <QtDBus/QDBusArgument>
 #include "dbusconnection.h"
+#include <stdio.h>
 
 /**
  * As is evident from output of dbus-monitor,
@@ -17,15 +19,20 @@ struct SpiReference
 {
 	QString service;
 	QDBusObjectPath path;
-	
+
 	SpiReference()
-		: path(QDBusObjectPath("/org/a11y/atspi/accessible/null"))
+		:path(QDBusObjectPath("/org/a11y/atspi/accessible/null"))
 	{}
 
 	SpiReference(const QDBusConnection& connection, const QDBusObjectPath& path)
-		:service(connection.baseService()),path(path)
+		:service(connection.baseService()), path(path)
 	{}
 };
+
+Q_DECLARE_METATYPE(SpiReference);
+
+QDBusArgument& operator<<(QDBusArgument& argument, const SpiReference& address);
+const QDBusArgument& operator>>(const QDBusArgument& argument, 	SpiReference& address);
 
 class Focus : public QObject
 {
@@ -38,7 +45,9 @@ private Q_SLOTS:
 	void stateChanged(const QString& state,
 						int detail1,
 						int detail2,
-						const QDBusVariant &arg);
+						const QDBusVariant& arg,
+						const SpiReference& ref);
+
 private:
 	DBusConnection dbc;
 };
