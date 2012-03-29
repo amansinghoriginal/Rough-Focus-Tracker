@@ -58,7 +58,12 @@ void Focus::stateChanged(const QString& state,
 							int detail1,
 							int detail2,
 							const QDBusVariant& arg,
-							const SpiReference& ref)
+							const SpiReference& ref) const
 {
 	qDebug() << "Signal Recieved\n";
+}
+
+DBusConnection Focus::connection() const
+{
+	return dbc;
 }
