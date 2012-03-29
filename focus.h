@@ -5,8 +5,8 @@
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusObjectPath>
 #include <QtDBus/QDBusArgument>
+#include <QtCore/QDebug>
 #include "dbusconnection.h"
-#include <stdio.h>
 
 /**
  * As is evident from output of dbus-monitor,
@@ -22,11 +22,11 @@ struct SpiReference
 
 	SpiReference()
 		:path(QDBusObjectPath("/org/a11y/atspi/accessible/null"))
-	{}
+	{ qDebug() << "No-arg constructor"; }
 
 	SpiReference(const QDBusConnection& connection, const QDBusObjectPath& path)
 		:service(connection.baseService()), path(path)
-	{}
+	{ qDebug() << "Arg constructor\n";}
 };
 
 Q_DECLARE_METATYPE(SpiReference);

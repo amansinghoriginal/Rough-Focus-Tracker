@@ -1,12 +1,12 @@
 #include<QtDBus/QDBusConnection>
 #include<QtDBus/QDBusMessage>
 #include<QtDBus/QDBusVariant>
+#include<QtDBus/QDBusMetaType>
 #include "focus.h"
-#include <stdio.h>
-#include <QtCore/QDebug>
 
 QDBusArgument& operator<< (QDBusArgument& argument, const SpiReference& address)
 {
+	qDebug() << "<< was called\n";
 	argument.beginStructure();
 	argument << address.service;
 	argument << address.path;
@@ -16,6 +16,7 @@ QDBusArgument& operator<< (QDBusArgument& argument, const SpiReference& address)
 
 const QDBusArgument& operator>> (const QDBusArgument& argument, SpiReference& address)
 {
+	qDebug() << ">> was called\n";
 	argument.beginStructure();
 	argument >> address.service;
 	argument >> address.path;
@@ -25,6 +26,7 @@ const QDBusArgument& operator>> (const QDBusArgument& argument, SpiReference& ad
 
 Focus::Focus()
 {
+	qDBusRegisterMetaType<SpiReference>();
 	if(!dbc.connection().registerService("org.aman.focustracker"))
 		qWarning() << "Could not register service";
 	
@@ -41,13 +43,14 @@ Focus::Focus()
 		if(reply.type() == QDBusMessage::ErrorMessage)
 			qWarning() << "focus :: Could not register subscriptions\n";
 	
-	if(!dbc.connection().connect("",	//service
+	if(!dbc.connection().connect(QString(),	//service
 							"",	//path
 							"org.a11y.atspi.Event.Object", //interface
 							"StateChanged",
 							this, //reciever
-						SLOT(stateChanged(QString,int,int,QDBusVariant,SpiReference))))
+						SLOT(stateChanged(QString,int,int,QDBusVariant,SpiReference)))){
 		qWarning() << "Could not connect the signal\n";
+	}
 
 }
 
@@ -57,5 +60,5 @@ void Focus::stateChanged(const QString& state,
 							const QDBusVariant& arg,
 							const SpiReference& ref)
 {
-	printf("Signal Recieved\n");
+	qDebug() << "Signal Recieved\n";
 }
