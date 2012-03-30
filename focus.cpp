@@ -6,7 +6,6 @@
 
 QDBusArgument& operator<< (QDBusArgument& argument, const SpiReference& address)
 {
-	qDebug() << "<< was called\n";
 	argument.beginStructure();
 	argument << address.service;
 	argument << address.path;
@@ -16,7 +15,6 @@ QDBusArgument& operator<< (QDBusArgument& argument, const SpiReference& address)
 
 const QDBusArgument& operator>> (const QDBusArgument& argument, SpiReference& address)
 {
-	qDebug() << ">> was called\n";
 	argument.beginStructure();
 	argument >> address.service;
 	argument >> address.path;
@@ -60,10 +58,30 @@ void Focus::stateChanged(const QString& state,
 							const QDBusVariant& arg,
 							const SpiReference& ref) const
 {
-	qDebug() << "Signal Recieved\n";
+	if(state=="focused" && detail1==1){
+		qDebug() << "Focus signal detected\n";
+		//qDebug() << "State: "<<state << detail1 << detail2 << arg.variant() << ref.service <<ref.path.path() << "\n";
+		
+		QVariantList args;
+		args.append(QString("org.a11y.atspi.Accessible")); //interface
+		args.append(QString("Name"));
+
+		QDBusMessage message = QDBusMessage::createMethodCall(
+				ref.service, ref.path.path(),
+				"org.freedesktop.DBus.Properties","Get");
+
+		message.setArguments(args);
+
+		QDBusMessage reply = dbc.connection().call(message);
+
+		if(reply.arguments().isEmpty())
+			qDebug() << "Empty reply\n";
+		else
+			qDebug() << "Slot :: " << reply.arguments().at(0).value<QDBusVariant>().variant()<<"\n";
+	}
 }
 
-DBusConnection Focus::connection() const
+const DBusConnection& Focus::connection() const
 {
 	return dbc;
 }

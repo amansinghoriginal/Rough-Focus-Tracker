@@ -22,11 +22,11 @@ struct SpiReference
 
 	SpiReference()
 		:path(QDBusObjectPath("/org/a11y/atspi/accessible/null"))
-	{ qDebug() << "No-arg constructor"; }
+	{}
 
 	SpiReference(const QDBusConnection& connection, const QDBusObjectPath& path)
 		:service(connection.baseService()), path(path)
-	{ qDebug() << "Arg constructor\n";}
+	{}
 };
 
 Q_DECLARE_METATYPE(SpiReference);
@@ -46,7 +46,8 @@ private Q_SLOTS:
 						int detail1,
 						int detail2,
 						const QDBusVariant& arg,
-						const SpiReference& ref);
+						const SpiReference& ref) const;
+	const DBusConnection& connection() const;
 
 private:
 	DBusConnection dbc;

@@ -8,7 +8,7 @@ class FocusedObject : public QObject
 	Q_OBJECT
 
 public:
-	FocusedObject(const QString& service, const QString& path);
+	FocusedObject(const QString& service, const QString& path, const DBusConnection&);
 
 private:
 	quint64 objectState;
