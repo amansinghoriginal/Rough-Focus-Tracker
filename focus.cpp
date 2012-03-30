@@ -61,23 +61,37 @@ void Focus::stateChanged(const QString& state,
 	if(state=="focused" && detail1==1){
 		qDebug() << "Focus signal detected\n";
 		//qDebug() << "State: "<<state << detail1 << detail2 << arg.variant() << ref.service <<ref.path.path() << "\n";
+
+		QDBusMessage m = QDBusMessage::createMethodCall(
+						ref.service,
+						ref.path.path(),
+						"org.a11y.atspi.Accessible",
+						"GetState");
+		QDBusMessage reply = dbc.connection().call(m);
+
+		if(reply.arguments().isEmpty()){
+			qDebug() << "Empty reply : State not obtained\n";
+			return;
+		}
+
+		QList<uint> objectState;
+
+		const QDBusArgument returnValue = reply.arguments().at(0).value<QDBusArgument>();
+
+		returnValue.beginArray();
+		while(returnValue.atEnd()){
+			int arg;
+			returnValue >> arg;
+			objectState << arg;
+		}
+		returnValue.endArray();
+
+		Q_ASSERT(state.count()==2); //Make sure that there are only 
+
+
+
 		
-		QVariantList args;
-		args.append(QString("org.a11y.atspi.Accessible")); //interface
-		args.append(QString("Name"));
 
-		QDBusMessage message = QDBusMessage::createMethodCall(
-				ref.service, ref.path.path(),
-				"org.freedesktop.DBus.Properties","Get");
-
-		message.setArguments(args);
-
-		QDBusMessage reply = dbc.connection().call(message);
-
-		if(reply.arguments().isEmpty())
-			qDebug() << "Empty reply\n";
-		else
-			qDebug() << "Slot :: " << reply.arguments().at(0).value<QDBusVariant>().variant()<<"\n";
 	}
 }
 
